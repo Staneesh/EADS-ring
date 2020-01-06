@@ -82,6 +82,18 @@ void Ring<Key, Info>::pushBack(const Node& o)
 }
 
 template <typename Key, typename Info>
+void Ring<Key, Info>::pushBack(const Iterator& i)
+{
+    pushBack(i->identifier, i->data);
+}
+
+template <typename Key, typename Info>
+void Ring<Key, Info>::pushBack(Const_Iterator& i)
+{
+    pushBack(i->identifier, i->data);
+}
+
+template <typename Key, typename Info>
 void Ring<Key, Info>::popBack()
 {
     if (count == 0) return;
@@ -146,6 +158,20 @@ template <typename Key, typename Info>
 void Ring<Key, Info>::pushFront(const Node& o)
 {
     pushFront(o.identifier, o.data);
+}
+
+
+template <typename Key, typename Info>
+void Ring<Key, Info>::pushFront(const Iterator& o)
+{
+    pushFront(o->identifier, o->data);
+}
+
+
+template <typename Key, typename Info>
+void Ring<Key, Info>::pushFront(Const_Iterator& o)
+{
+    pushFront(o->identifier, o->data);
 }
 
 template <typename Key, typename Info>
@@ -263,6 +289,47 @@ void Ring<Key, Info>::removeElement(const Key& k, int keysToSkip)
                 return;
             }
         }
+    }
+    while(it != begin());
+}
+
+template <typename Key, typename Info>
+void Ring<Key, Info>::removeElement(Iterator& i)
+{
+    if (i.getH() != head) return;
+    
+    if (isEmpty()) return;
+
+    Iterator it = begin();
+    
+    do
+    {
+        if (it++ == i)
+        {
+            auto oldPrev = it->prev;
+
+            --count;
+            
+            if (oldPrev == head)
+            {
+                if (count == 1)
+                {
+                    return;
+                }
+
+                head = head->next;
+            }
+                
+            auto newPrev = oldPrev->prev;
+                
+            newPrev->next = &*it;
+            it->prev = newPrev;
+
+            delete oldPrev;
+            
+            return;
+        }
+        
     }
     while(it != begin());
 }

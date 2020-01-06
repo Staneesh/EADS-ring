@@ -35,12 +35,12 @@ void split(const Ring<Key, Info>& source, bool direction,
             if (now)
             {
                 if (rep2 > 0)
-                    result2.pushBack(*it);
+                    result2.pushBack(it);
             }
             else
             {
                 if (rep1 > 0)
-                    result1.pushBack(*it);
+                    result1.pushBack(it);
             }
 
             if (direction)
@@ -195,6 +195,19 @@ int main()
     r1.print();
     cout<<"R2:"<<endl;
     r2.print();
+
+    cout<<"ringOfBooks2:"<<endl;
+    ringOfBooks2.print();
+    cout<<"Removing head..."<<endl;
+    Ring<int, string>::Iterator it = ringOfBooks2.begin();
+    ringOfBooks2.removeElement(it);
+    ringOfBooks2.print();
+
+    cout<<"Trying poorly to remove head..."<<endl;
+    it = r1.begin();
+    ringOfBooks2.removeElement(it);
+    ringOfBooks2.print();
+        
     
     
     return 0;

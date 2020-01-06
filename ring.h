@@ -39,12 +39,14 @@ public:
         Iterator(Node* rhs) {n = rhs; h = rhs;}
         ~Iterator() {}
 
+        void operator=(const Iterator& rhs) {n = rhs.n; h = rhs.h;}
         Iterator operator++() {n = n->next; return *this; }
         Iterator operator++(int) {Iterator oldPtr = *this; n = n->next; return oldPtr; }
         Iterator operator--() {n = n->prev; return *this; }
         Iterator operator--(int) {Iterator oldPtr = *this; n = n->prev; return oldPtr; }
         Node& operator*() { return *n; }
         Node* operator->() { return n; }
+        const Node* getH(){return h;};
         bool operator==(const Iterator& rhs) const { return (n == rhs.n); }
         bool operator!=(const Iterator& rhs) const { return (n != rhs.n); }
     };
@@ -59,12 +61,14 @@ public:
         Const_Iterator(Node* rhs) {n = rhs; h = rhs;}
         ~Const_Iterator() {}
 
+        void operator=(const Const_Iterator& rhs) {n = rhs.n; h = rhs.h;}
         Const_Iterator operator++() {n = n->next; return *this; }
         Const_Iterator operator++(int) {Const_Iterator oldPtr = *this; n = n->next; return oldPtr; }
         Const_Iterator operator--() {n = n->prev; return *this; }
         Const_Iterator operator--(int) {Const_Iterator oldPtr = *this; n = n->prev; return oldPtr; }
         const Node& operator*() { return *n; }
         const Node* operator->() { return n; }
+        const Node* getH(){return h;};
         bool operator==(const Const_Iterator& rhs) const { return (n == rhs.n); }
         bool operator!=(const Const_Iterator& rhs) const { return (n != rhs.n); }
     };
@@ -82,11 +86,16 @@ public:
 
     void pushBack(const Key&, const Info&); //NOTE: complexity: O(1);
     void pushBack(const Node&); //NOTE: complexity: O(1);
+    //NOTE: i allow i to be a pointer of other object than 'this'. i just take Key and Info from it.
+    void pushBack(const Iterator& i);
+    void pushBack(Const_Iterator& i);
     void popBack(); //NOTE: complexity: O(1) thanks to 'prev' pointer
 
     //NOTE: complexities equal to the ones above 
     void pushFront(const Key&, const Info&);
     void pushFront(const Node&);
+    void pushFront(const Iterator& i);
+    void pushFront(Const_Iterator& i);
     void popFront();
 
     void print() const;
@@ -106,6 +115,8 @@ public:
     //NOTE: This method will remove a first key after
     // 'keysToSkip' keys have been already found.
     void removeElement(const Key&, int keysToSkip);
+    //NOTE: remove this exact element that i points to. 
+    void removeElement(Iterator& i);
 
     //NOTE: this method will remove ALL nodes of a given Key. 
     void removeElements(const Key&);
