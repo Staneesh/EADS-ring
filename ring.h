@@ -4,11 +4,12 @@
 #include <iostream>
 using namespace std;
 
-//TODO: update comments
 //TODO: handle invalid parameter values
 //TODO: handle iterators as args
 //TODO: handle improper iterators as params
+//TODO: use subring in split.
 
+//NOTE: This structure is a doubly-linked ring without a sentinel.
 template <typename Key, typename Info>
 class Ring
 {
@@ -71,47 +72,54 @@ public:
     Const_Iterator cbegin() const { return Const_Iterator(head); }
     
     Ring();
-    Ring(const Ring<Key, Info>&);
-    ~Ring(); //NOTE(Stanisz13): complexity: O(n)
+    Ring(const Ring<Key, Info>&); //NOTE: complexity: O(n)
+    ~Ring(); //NOTE: complexity: O(n). Performs clear and frees 'head' memory.
 
     
     bool isEmpty() const;
     unsigned long long getCount() const;
 
-    void pushBack(const Key&, const Info&); //NOTE(Stanisz13): complexity: O(1);
-    void pushBack(const Node&); //NOTE(Stanisz13): complexity: O(1);
-    void popBack(); //NOTE(Stanisz13): complexity: O(n), finding 2nd last element takes time;
-    
+    void pushBack(const Key&, const Info&); //NOTE: complexity: O(1);
+    void pushBack(const Node&); //NOTE: complexity: O(1);
+    void popBack(); //NOTE: complexity: O(1) thanks to 'prev' pointer
+
+    //NOTE: complexities equal to the ones above 
     void pushFront(const Key&, const Info&);
     void pushFront(const Node&);
     void popFront();
 
     void print() const;
 
+    //NOTE: clears the structure by consecutive popBacks.
     void clear();
     
-    unsigned long long howManyElements(const Key&, const Info&) const;
+    //NOTE: returns 1 iff there exists an element of a given Key AND Info. 0 otherwise.
     bool isElementPresent(const Key&, const Info&) const; 
-    //NOTE(Stanisz13): Here we don't look for any specific Info.
+    //NOTE: counts elements of a given Key AND Info.
+    unsigned long long howManyElements(const Key&, const Info&) const;
+
+    //NOTE: Here we don't look for any specific Info.
     unsigned long long howManyElements(const Key&) const; 
     bool isElementPresent(const Key&) const;
     
-    //NOTE(Stanisz13): This method will remove a first key after
+    //NOTE: This method will remove a first key after
     // 'keysToSkip' keys have been already found.
-    void removeElement(const Key& k, int keysToSkip);
+    void removeElement(const Key&, int keysToSkip);
 
-    void removeElements(const Key& k);
+    //NOTE: this method will remove ALL nodes of a given Key. 
+    void removeElements(const Key&);
     
-    //NOTE(Stanisz13): This method will insert an element consisting of Key and Info after
+    //NOTE: This method will insert an element consisting of Key and Info after
     // a 'afterWhat' key and after 'keysToSkip' ('afterWhat') keys have been already found.
     void insertElement(const Key& k, const Info& i, const Key& afterWhat,
                        int keysToSkip);
     
 
-    //NOTE(Stanisz13): from sequence: [1, 2, 3, 4] using subsequence(1, 2)
+    //NOTE: from ring: [1, 2, 3, 4] using subring(1, 2)
     // will return [2, 3].
     Ring<Key, Info> subring(int startIndex, int endIndex) const;
 
+    //NOTE: pushes back all nodes from o to this structure.
     void append(const Ring<Key, Info>& o);
 
     void operator+=(const Ring<Key, Info>& o);

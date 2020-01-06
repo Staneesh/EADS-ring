@@ -39,6 +39,7 @@ template <typename Key, typename Info>
 Ring<Key, Info>::~Ring()
 {
     clear();
+    delete head;
 }
 
 template <typename Key, typename Info>
