@@ -5,6 +5,9 @@
 using namespace std;
 
 //TODO: update comments
+//TODO: handle invalid parameter values
+//TODO: handle iterators as args
+//TODO: handle improper iterators as params
 
 template <typename Key, typename Info>
 class Ring
@@ -20,7 +23,6 @@ class Ring
 
     Node* head;
     unsigned long long count;
-    bool isEmpty;
     
     void copyAllElements(const Ring<Key, Info>&);
     void init();
@@ -65,7 +67,6 @@ public:
         bool operator!=(const Const_Iterator& rhs) const { return n != rhs.n; }
     };
 
-    //TODO: Update those with erasure to be head.
     Iterator begin() const { return Iterator(head);}
     Const_Iterator cbegin() const { return Const_Iterator(head); }
     
@@ -74,7 +75,7 @@ public:
     ~Ring(); //NOTE(Stanisz13): complexity: O(n)
 
     
-    bool isRingEmpty() const;
+    bool isEmpty() const;
     unsigned long long getCount() const;
 
     void pushBack(const Key&, const Info&); //NOTE(Stanisz13): complexity: O(1);
@@ -97,8 +98,10 @@ public:
     
     //NOTE(Stanisz13): This method will remove a first key after
     // 'keysToSkip' keys have been already found.
-    void removeElements(const Key& k, int keysToSkip);
+    void removeElement(const Key& k, int keysToSkip);
 
+    void removeElements(const Key& k);
+    
     //NOTE(Stanisz13): This method will insert an element consisting of Key and Info after
     // a 'afterWhat' key and after 'keysToSkip' ('afterWhat') keys have been already found.
     void insertElement(const Key& k, const Info& i, const Key& afterWhat,
@@ -109,7 +112,6 @@ public:
     // will return [2, 3].
     Ring<Key, Info> subring(int startIndex, int endIndex) const;
 
-    //TODO: how should this work?
     void append(const Ring<Key, Info>& o);
 
     void operator+=(const Ring<Key, Info>& o);

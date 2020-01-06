@@ -9,7 +9,6 @@ void Ring<Key, Info>::init()
     count = 0;
     head->next = head;
     head->prev = head;
-    isEmpty = 1;
 }
 
 template <typename Key, typename Info>
@@ -17,7 +16,7 @@ void Ring<Key, Info>::copyAllElements(const Ring<Key, Info>& other)
 {
     init();
 
-    if (other.isEmpty) return;
+    if (other.isEmpty()) return;
     
     Const_Iterator it = other.cbegin();
     do
@@ -39,6 +38,7 @@ Ring<Key, Info>::Ring()
 template <typename Key, typename Info>
 Ring<Key, Info>::~Ring()
 {
+    clear();
 }
 
 template <typename Key, typename Info>
@@ -50,17 +50,17 @@ Ring<Key, Info>::Ring(const Ring<Key, Info>& other)
 
 template <typename Key, typename Info>
 void Ring<Key, Info>::pushBack(const Key& k, const Info& i)
-{
-    if (isEmpty)
+{    
+    if (count == 0)
     {
         head->data = i;
         head->identifier = k;
-
-        isEmpty = 0;
-        
+        ++count;
+           
         return;
     }
-
+    ++count;
+    
 
     Node* n = new Node;
     n->identifier = k;
@@ -83,7 +83,7 @@ void Ring<Key, Info>::pushBack(const Node& o)
 template <typename Key, typename Info>
 void Ring<Key, Info>::popBack()
 {
-    if (isEmpty) return;
+    if (count == 0) return;
 
     //NOTE: At least one element, so i will alwaus end up with a smaller structure.
     --count;
@@ -91,7 +91,6 @@ void Ring<Key, Info>::popBack()
     //NOTE: exactly one element.
     if (head->next == head)
     {
-        isEmpty = 1;
         return;
     }
 
@@ -105,9 +104,9 @@ void Ring<Key, Info>::popBack()
 }
 
 template <typename Key, typename Info>
-bool Ring<Key, Info>::isRingEmpty() const
+bool Ring<Key, Info>::isEmpty() const
 {
-    return isEmpty;
+    return count == 0;
 }
 
 template <typename Key, typename Info>
@@ -119,16 +118,17 @@ unsigned long long Ring<Key, Info>::getCount() const
 template <typename Key, typename Info>
 void Ring<Key, Info>::pushFront(const Key& k, const Info& i)
 {
-    if (isEmpty)
+    if (count == 0)
     {
         head->data = i;
         head->identifier = k;
-
-        isEmpty = 0;
+        ++count;
         
         return;
     }
 
+    ++count;
+    
     Node* n = new Node;
     n->identifier = k;
     n->data = i;
@@ -139,8 +139,6 @@ void Ring<Key, Info>::pushFront(const Key& k, const Info& i)
     n->prev = head;
     oldNext->prev = n;
     n->next = oldNext;
-
-    ++count;
 }
 
 template <typename Key, typename Info>
@@ -152,7 +150,7 @@ void Ring<Key, Info>::pushFront(const Node& o)
 template <typename Key, typename Info>
 void Ring<Key, Info>::popFront()
 {
-    if (isEmpty) return;
+    if (count == 0) return;
 
     //NOTE: At least one element, so i will alwaus end up with a smaller structure.
     --count;
@@ -160,7 +158,6 @@ void Ring<Key, Info>::popFront()
     //NOTE: exactly one element.
     if (head->next == head)
     {
-        isEmpty = 1;
         return;
     }
 
@@ -177,38 +174,149 @@ void Ring<Key, Info>::popFront()
 template <typename Key, typename Info>
 unsigned long long Ring<Key, Info>::howManyElements(const Key& k, const Info& i) const
 {
+    unsigned long long res = 0;
+    if (isEmpty()) return res;
+
+    
+    Const_Iterator it = cbegin();
+
+    do
+    {
+        if (it->identifier == k && it->data == i) ++res;
+
+        ++it;
+    }
+    while(it != cbegin());
+
+    return res;        
 }
 
 template <typename Key, typename Info>
 bool Ring<Key, Info>::isElementPresent(const Key& k, const Info& i) const
 {
+    return howManyElements(k, i) > 0;
 }
 
 template <typename Key, typename Info>
 unsigned long long Ring<Key, Info>::howManyElements(const Key& k) const
 {
+    unsigned long long res = 0;
+    if (isEmpty()) return res;
+
+    
+    Const_Iterator it = cbegin();
+
+    do
+    {
+        if (it++->identifier == k) ++res;
+    }
+    while(it != cbegin());
+
+    return res;    
 }
 
 template <typename Key, typename Info>
 bool Ring<Key, Info>::isElementPresent(const Key& k) const
 {
+    return howManyElements(k) > 0;
 }
 
 template <typename Key, typename Info>
-void Ring<Key, Info>::removeElements(const Key& k, int keysToSkip)
+void Ring<Key, Info>::removeElement(const Key& k, int keysToSkip)
 {
+    if (isEmpty()) return;
+
+    if (keysToSkip < 0) keysToSkip = 0;
+    
+    Iterator it = begin();
+
+    int keysAlreadySeen = 0;
+    
+    do
+    {
+        if (it++->identifier == k)
+        {
+            if (keysAlreadySeen++ >= keysToSkip)
+            {
+                --count;
+                
+                auto oldPrev = it->prev;
+
+                if (oldPrev == head)
+                {
+                    if (count == 1)
+                    {
+                        return;
+                    }
+
+                    head = head->next;
+                }
+                
+                auto newPrev = oldPrev->prev;
+                
+                newPrev->next = &*it;
+                it->prev = newPrev;
+
+                delete oldPrev;
+                
+                return;
+            }
+        }
+    }
+    while(it != begin());
+}
+
+template <typename Key, typename Info>
+void Ring<Key, Info>::removeElements(const Key& k)
+{
+    if (isEmpty()) return;
+    
+    Iterator it = begin();
+
+    do
+    {
+        if (it++->identifier == k)
+        {
+            --count;
+
+            bool itToMove = 0;
+            
+            auto oldPrev = it->prev;
+
+            if (oldPrev == head)
+            {
+                if (count == 1)
+                {
+                    return;
+                }
+
+                head = head->next;
+                itToMove = 1;
+            }
+                
+            auto newPrev = oldPrev->prev;
+                
+            newPrev->next = &*it;
+            it->prev = newPrev;
+
+            if (itToMove) ++it;
+
+            delete oldPrev;
+        }
+    }
+    while(it != begin());
 }
 
 template <typename Key, typename Info>
 void Ring<Key, Info>::print() const
 {
-    if (isEmpty)
+    if (count == 0)
     {
         cout<<"Ring is empty."<<endl;
         return;
     }
     
-    cout<<"Ring contains:"<<endl;
+    cout<<"Ring (of size "<<count<<") contains:"<<endl;
     Const_Iterator it = cbegin();
     do
     {
@@ -230,7 +338,7 @@ void Ring<Key, Info>::print() const
 template <typename Key, typename Info>
 void Ring<Key, Info>::clear()
 {
-    while(isRingEmpty() == 0)
+    while(isEmpty() == 0)
     {
         popBack();
     }
@@ -240,17 +348,81 @@ template <typename Key, typename Info>
 void Ring<Key, Info>::insertElement(const Key& k, const Info& i, const Key& afterWhat,
                    int keysToSkip)
 {
+    if (isEmpty()) return;
+
+    if (keysToSkip < 0) keysToSkip = 0;
+    
+    Iterator it = begin();
+
+    int keysAlreadySeen = 0;
+    
+    do
+    {
+        if (it++->identifier == afterWhat)
+        {
+            if (keysAlreadySeen++ >= keysToSkip)
+            {
+                Node* n = new Node;
+                n->identifier = k;
+                n->data = i;
+
+                auto oldPrev = it->prev;
+
+                oldPrev->next = n;
+                n->prev = oldPrev;
+                it->prev = n;
+                n->next = &*it;
+
+                ++count;
+                return;
+            }
+        }
+    }
+    while(it != begin());
 }
 
 template <typename Key, typename Info>
 Ring<Key, Info> Ring<Key, Info>::subring(int startIndex, int endIndex) const
 {
+    Ring<Key, Info> res;
+
+    if (isEmpty()) return res;
+
+    if ((unsigned long long)startIndex >= count || endIndex < 0) return res;
+    
+    if (startIndex < 0) startIndex = 0;
+    if ((unsigned long long)endIndex >= count) endIndex = count - 1;
+    if (startIndex > endIndex) return res;
+
+    Const_Iterator it = cbegin();
+    int i = 0;
+    do
+    {
+        if (i >= startIndex && i <= endIndex)
+        {
+            res.pushBack(*it);
+        }
+        ++it;
+        ++i;
+    }
+    while(it != cbegin());
+
+    return res;
 }
 
 template <typename Key, typename Info>
 void Ring<Key, Info>::append(const Ring<Key, Info>& o)
 {
+    if (o.isEmpty()) return;
     
+    Const_Iterator it = o.cbegin();
+
+    do
+    {
+        pushBack(*it);
+        ++it;
+    }
+    while (it != o.cbegin());
 }
 
 template <typename Key, typename Info>
