@@ -89,14 +89,14 @@ public:
     //NOTE: i allow i to be a pointer of other object than 'this'. i just take Key and Info from it.
     void pushBack(const Iterator& i);
     void pushBack(Const_Iterator& i);
-    void popBack(); //NOTE: complexity: O(1) thanks to 'prev' pointer
+    Node popBack(); //NOTE: complexity: O(1) thanks to 'prev' pointer
 
     //NOTE: complexities equal to the ones above 
     void pushFront(const Key&, const Info&);
     void pushFront(const Node&);
     void pushFront(const Iterator& i);
     void pushFront(Const_Iterator& i);
-    void popFront();
+    Node popFront();
 
     void print() const;
 
@@ -105,6 +105,10 @@ public:
     
     //NOTE: returns 1 iff there exists an element of a given Key AND Info. 0 otherwise.
     bool isElementPresent(const Key&, const Info&) const; 
+    //NOTE: looking for specific pointer
+    bool isElementPresent(const Const_Iterator& i) const; 
+    //NOTE: looking for node pointed to by i, starting from address pointed by s.
+    bool isElementPresent(const Const_Iterator& s, const Const_Iterator& i) const; 
     //NOTE: counts elements of a given Key AND Info.
     unsigned long long howManyElements(const Key&, const Info&) const;
 
@@ -130,6 +134,9 @@ public:
     //NOTE: from ring: [1, 2, 3, 4] using subring(1, 2)
     // will return [2, 3].
     Ring<Key, Info> subring(int startIndex, int endIndex) const;
+    Ring<Key, Info> subring(const Const_Iterator& start, const Const_Iterator& end) const;
+
+    void reverse();
 
     //NOTE: pushes back all nodes from o to this structure.
     void append(const Ring<Key, Info>& o);

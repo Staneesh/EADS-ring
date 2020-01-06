@@ -17,42 +17,30 @@ void split(const Ring<Key, Info>& source, bool direction,
     if (sequence2 < 0) sequence2 = 0;
     if (rep1 < 0) rep1 = 0;
     if (rep2 < 0) rep2 = 0;
-    
-    
-    typename Ring<Key, Info>::Const_Iterator it = source.cbegin();
 
+    auto copy = source;
+
+    if (direction == 0) copy.reverse();
+    
     int steps[2] = {sequence1, sequence2};
     int now = 0;
     int repeated1 = 0;
     int repeated2 = 0;
 
-    if (rep1 == 0) now ^= 1;
+    if (rep1 == 0 || sequence1 == 0) now ^= 1;
+
+    int idx = 0;
     
     while (1)
     {
-        for (int i = 0; i < steps[now]; ++i)
-        {
-            if (now)
-            {
-                if (rep2 > 0)
-                    result2.pushBack(it);
-            }
-            else
-            {
-                if (rep1 > 0)
-                    result1.pushBack(it);
-            }
+        if (now == 0) result1 += copy.subring(idx, idx + steps[now] - 1);
+        else result2 += copy.subring(idx, idx + steps[now] - 1);
 
-            if (direction)
-                ++it;
-            else --it;
-            
-            if (it == source.cbegin())
-            {
-                return;
-            }
+        idx += steps[now];
+        if ((unsigned long long)idx > copy.getCount())
+        {
+            return;
         }
-        
         if (now)
         {
             ++repeated2;
@@ -75,7 +63,7 @@ void split(const Ring<Key, Info>& source, bool direction,
             return;
         }
         
-        now ^= 1;
+        now ^= 1;        
     }
 }
            
@@ -185,8 +173,8 @@ int main()
 
     Ring<int, string> r1, r2;
     bool dir = 1;
-    int seq1 = -100, seq2 = 2;
-    int rep1 = 1000, rep2 = 1000;
+    int seq1 = 1, seq2 = 1;
+    int rep1 = 2, rep2 = 2;
 
     cout<<"Splitting: dir:"<<dir<<" seq1:"<<seq1<<" rep1:"<<rep1<<" seq2:"<<seq2<<" rep2:"<<rep2<<endl;
     split(ringOfBooks2, dir, r1, seq1, rep1, r2, seq2, rep2);
@@ -196,6 +184,7 @@ int main()
     cout<<"R2:"<<endl;
     r2.print();
 
+#if 1
     cout<<"ringOfBooks2:"<<endl;
     ringOfBooks2.print();
     cout<<"Removing head..."<<endl;
@@ -208,7 +197,9 @@ int main()
     ringOfBooks2.removeElement(it);
     ringOfBooks2.print();
         
-    
-    
+    cout<<"Reversing..."<<endl;
+    ringOfBooks2.reverse();
+    ringOfBooks2.print();
+#endif    
     return 0;
 }
