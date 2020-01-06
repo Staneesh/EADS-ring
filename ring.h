@@ -4,7 +4,6 @@
 #include <iostream>
 using namespace std;
 
-//TODO: handle invalid parameter values
 //TODO: handle iterators as args
 //TODO: handle improper iterators as params
 //TODO: use subring in split.
@@ -33,10 +32,11 @@ public:
     class Iterator
     {
         Node* n;
+        Node* h;
     public:
         Iterator() {};
-        Iterator(const Iterator& rhs) {n = rhs.n;}
-        Iterator(Node* r) { n = r;}
+        Iterator(const Iterator& rhs) {n = rhs.n; h = rhs.h;}
+        Iterator(Node* rhs) {n = rhs; h = rhs;}
         ~Iterator() {}
 
         Iterator operator++() {n = n->next; return *this; }
@@ -45,17 +45,18 @@ public:
         Iterator operator--(int) {Iterator oldPtr = *this; n = n->prev; return oldPtr; }
         Node& operator*() { return *n; }
         Node* operator->() { return n; }
-        bool operator==(const Iterator& rhs) const { return n == rhs.n; }
-        bool operator!=(const Iterator& rhs) const { return n != rhs.n; }
+        bool operator==(const Iterator& rhs) const { return (n == rhs.n); }
+        bool operator!=(const Iterator& rhs) const { return (n != rhs.n); }
     };
 
     class Const_Iterator
     {
         Node* n;
+        Node* h;
     public:
         Const_Iterator() {};
-        Const_Iterator(const Const_Iterator& rhs) {n = rhs.n;}
-        Const_Iterator(Node* r) { n = r;}
+        Const_Iterator(const Const_Iterator& rhs) {n = rhs.n; h = rhs.h;}
+        Const_Iterator(Node* rhs) {n = rhs; h = rhs;}
         ~Const_Iterator() {}
 
         Const_Iterator operator++() {n = n->next; return *this; }
@@ -64,8 +65,8 @@ public:
         Const_Iterator operator--(int) {Const_Iterator oldPtr = *this; n = n->prev; return oldPtr; }
         const Node& operator*() { return *n; }
         const Node* operator->() { return n; }
-        bool operator==(const Const_Iterator& rhs) const { return n == rhs.n; }
-        bool operator!=(const Const_Iterator& rhs) const { return n != rhs.n; }
+        bool operator==(const Const_Iterator& rhs) const { return (n == rhs.n); }
+        bool operator!=(const Const_Iterator& rhs) const { return (n != rhs.n); }
     };
 
     Iterator begin() const { return Iterator(head);}
